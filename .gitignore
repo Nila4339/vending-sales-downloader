@@ -1,0 +1,7 @@
+config.json
+browser_profile/
+downloads/
+__pycache__/
+*.pyc
+.env
+.venv/
