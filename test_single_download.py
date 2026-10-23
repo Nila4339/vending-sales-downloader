@@ -93,7 +93,7 @@ def main():
                 if zipfile.is_zipfile(temp):
                     from openpyxl import load_workbook
                     try:
-                        book = load_workbook(temp, read_only=True)
+                        book = load_workbook(temp.open("rb"), read_only=True)
                         book.close()
                     except Exception as exc:
                         raise RuntimeError("下載檔是 ZIP，但無法辨識成 Excel xlsx") from exc
