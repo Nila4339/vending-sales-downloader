@@ -144,6 +144,7 @@ def main():
                 raise RuntimeError("未找到可唯一辨識的本次新報表。請手動確認通知中心，不下載舊報表")
             print("已偵測到新下載項目，準備擷取下載事件...")
             # Recorder shows a popup and a download; popup is optional in runtime.
+            pages_before_download = set(context.pages)
             with page.expect_download(timeout=60000) as download_info:
                 selected_link.click()
             download = download_info.value
@@ -201,7 +202,25 @@ def main():
                     print("原檔案已存在，為避免覆蓋，改存為：", target.name)
                 target.write_bytes(temp.read_bytes())
             print("下載完成：",target)
-            print("注意：此為人工確認的單台測試，通知中心任務尚未自動關聯；請核對內容。")
+            # JUSTECH may open a new browser tab when the download link is clicked.
+            # Close only tabs created during this download, preserving the original orders tab.
+            for extra_page in list(context.pages):
+                if extra_page is not page and extra_page not in pages_before_download:
+                    try:
+                        extra_page.close()
+                    except Exception as exc:
+                        print("關閉下載分頁時出現提醒：", exc)
+            if page.is_closed():
+                raise RuntimeError("原訂單分頁已關閉，無法安全繼續")
+            # Return to the known clean orders route. This avoids leftover notification
+            # panels and stale machine/date filters when transitioning between machines.
+            page.goto(URL, wait_until="domcontentloaded", timeout=30000)
+            if "/login" in page.url:
+                raise RuntimeError("登入狀態已失效；請重新登入後再執行")
+            page.get_by_role("textbox", name="建立時間").wait_for(timeout=15000)
+            page.bring_to_front()
+            print("已關閉額外下載分頁，返回原訂單頁。")
+            print("注意：目前仍是單台測試；多台批次需逐台重新設定機台與日期，並核對新通知。")
         finally:
             context.close()
 
