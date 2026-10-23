@@ -43,35 +43,9 @@ def main():
             input("請登入 JUSTECH、確認訂單頁已開啟，再按 Enter：")
             if "/login" in page.url:
                 page.goto(URL, wait_until="domcontentloaded")
-            # Inspect old notifications BEFORE selecting the machine/date, because
-            # JUSTECH may change the active view or leave the notification panel open.
-            original_page = page
-            known_pages = set(context.pages)
-            original_page.get_by_role("button", name="Open notifications").click()
-            notification_page = original_page
-            newly_opened = [p for p in context.pages if p not in known_pages]
-            if newly_opened:
-                notification_page = newly_opened[-1]
-                notification_page.wait_for_load_state("domcontentloaded")
-            links = notification_page.get_by_role("link", name="下載報表")
-            old_count = links.count()
-            old_hrefs = [links.nth(i).get_attribute("href") for i in range(old_count)]
-            print("初步偵測通知下載連結：", old_count, "（可能不完整，不能當作沒有舊報表）")
-            if old_count == 0:
-                raise RuntimeError(
-                    "通知中心舊連結讀取結果為 0，但尚未證實為空。"
-                    "為防止錯配報表，已停止匯出。請先執行 inspect_notifications.py。"
-                )
-            # Close only new pages opened by inspecting notifications.
-            for popup in [p for p in context.pages if p not in known_pages]:
-                popup.close()
-            page = original_page
-            page.goto(URL, wait_until="domcontentloaded")
-            if "/login" in page.url:
-                raise RuntimeError("檢查通知後登入狀態失效，請重新登入")
-            page.get_by_role("textbox", name="建立時間").wait_for(timeout=15000)
-            page.bring_to_front()
-            print("已檢查舊通知並返回訂單頁，開始設定機台與日期。")
+            # Notification baseline was unreliable (zero even with historical messages).
+            # Do not inspect old notifications here; keep the orders page untouched.
+            print("通知中心將在匯出後檢查最新一筆；不再以舊連結數量為依據。")
             page.locator(".choices__inner").first.click()
             dropdown = page.locator(".choices__list--dropdown").first
             dropdown.wait_for(state="visible")
@@ -155,33 +129,27 @@ def main():
             modal.get_by_role("button", name="確定").click(timeout=10000)
             print("已提交單台匯出，等候通知中心的新下載連結（最長 3 分鐘）...")
             page.get_by_role("button", name="Open notifications").click()
+            # User observed that new exports appear first in the notification list.
+            # This is a single-machine supervised test, NOT proof of job ownership.
             import time
             deadline = time.monotonic() + 180
-            selected_link = None
+            top_link = page.get_by_role("link", name="下載報表").first
             while time.monotonic() < deadline:
-                links = page.get_by_role("link", name="下載報表")
-                count = links.count()
-                # Unique href indicates new job; otherwise rely on single newly added link.
-                current = [(links.nth(i), links.nth(i).get_attribute("href")) for i in range(count)]
-                fresh = [(loc, href) for loc, href in current if href and href not in old_hrefs]
-                if len(fresh) == 1:
-                    selected_link = fresh[0][0]
-                    break
-                if len(fresh) > 1:
-                    print("通知中心有多個未辨識連結，為避免下載錯誤檔案已停止。")
-                    for index, (loc, href) in enumerate(fresh, 1):
-                        parent = loc.locator("xpath=..")
-                        details = " ".join(parent.inner_text(timeout=3000).split())[:240]
-                        # Do not print auth tokens / signed URLs from href.
-                        print(f"候選 {index}: 文字={details!r}; 連結是否存在={bool(href)}")
-                    raise RuntimeError("無法唯一關聯本次匯出任務；未下載任何候選檔案")
-                if count == old_count + 1:
-                    selected_link = links.first
+                if top_link.count() and top_link.is_visible():
                     break
                 page.wait_for_timeout(1500)
-            if selected_link is None:
-                raise RuntimeError("未找到可唯一辨識的本次新報表。請手動確認通知中心，不下載舊報表")
-            print("已偵測到新下載項目，準備擷取下載事件...")
+            else:
+                raise RuntimeError("等候逾時：通知中心沒有出現可見的下載報表連結")
+            parent = top_link.locator("xpath=..")
+            notice_text = " ".join(parent.inner_text().split())
+            print("最上方可下載通知附近內容：", notice_text[:300])
+            print("請確認該項確為本次剛產生的『商品月銷售數量統計表』，")
+            print("並留意有無其他人同時匯出；不確定時請取消。")
+            if input("確認最上方下載連結屬於本次匯出，輸入 YES：").strip() != "YES":
+                print("已取消，沒有下載可能錯配的報表。")
+                return
+            selected_link = top_link
+            print("已確認本次下載通知，準備擷取下載事件...")
             # Recorder shows a popup and a download; popup is optional in runtime.
             pages_before_download = set(context.pages)
             with page.expect_download(timeout=60000) as download_info:
