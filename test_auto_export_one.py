@@ -132,10 +132,22 @@ def main():
                 return
             entries.nth(matches[0]).click()
             print("已自動選取報表類型：", desired)
+            # Choices.js sometimes leaves the dropdown overlay visible. Close it
+            # by clicking the modal heading rather than forcing the submit button.
+            if menu.is_visible():
+                modal.get_by_text("確定要進行嗎？").click()
+            try:
+                menu.wait_for(state="hidden", timeout=5000)
+            except Exception as exc:
+                raise RuntimeError("報表選單未收合，為避免誤操作，停止送出") from exc
+            chosen = " ".join(selectors.first.inner_text().split())
+            if desired not in chosen:
+                raise RuntimeError(f"報表選擇結果不符：{chosen!r}，停止送出")
+            print("已確認選單收合，且選定報表正確。")
             if input("目視確認選項正確後輸入 YES 提交（其他輸入取消）：").strip() != "YES":
                 print("已取消提交")
                 return
-            modal.get_by_role("button", name="確定").click()
+            modal.get_by_role("button", name="確定").click(timeout=10000)
             print("已提交單台匯出，等候通知中心的新下載連結（最長 3 分鐘）...")
             page.get_by_role("button", name="Open notifications").click()
             import time
