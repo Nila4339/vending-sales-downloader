@@ -43,6 +43,30 @@ def main():
             input("請登入 JUSTECH、確認訂單頁已開啟，再按 Enter：")
             if "/login" in page.url:
                 page.goto(URL, wait_until="domcontentloaded")
+            # Inspect old notifications BEFORE selecting the machine/date, because
+            # JUSTECH may change the active view or leave the notification panel open.
+            original_page = page
+            known_pages = set(context.pages)
+            original_page.get_by_role("button", name="Open notifications").click()
+            notification_page = original_page
+            newly_opened = [p for p in context.pages if p not in known_pages]
+            if newly_opened:
+                notification_page = newly_opened[-1]
+                notification_page.wait_for_load_state("domcontentloaded")
+            links = notification_page.get_by_role("link", name="下載報表")
+            old_count = links.count()
+            old_hrefs = [links.nth(i).get_attribute("href") for i in range(old_count)]
+            print("匯出前通知中心可下載連結數：", old_count)
+            # Close only new pages opened by inspecting notifications.
+            for popup in [p for p in context.pages if p not in known_pages]:
+                popup.close()
+            page = original_page
+            page.goto(URL, wait_until="domcontentloaded")
+            if "/login" in page.url:
+                raise RuntimeError("檢查通知後登入狀態失效，請重新登入")
+            page.get_by_role("textbox", name="建立時間").wait_for(timeout=15000)
+            page.bring_to_front()
+            print("已檢查舊通知並返回訂單頁，開始設定機台與日期。")
             page.locator(".choices__inner").first.click()
             dropdown = page.locator(".choices__list--dropdown").first
             dropdown.wait_for(state="visible")
@@ -67,14 +91,6 @@ def main():
                 raise RuntimeError(f"日期不符：預期 {expected}，實際 {actual}")
             print("已選取設備：", name)
             print("已套用日期：", actual)
-            # Snapshot existing downloadable notification links before requesting a new export.
-            page.get_by_role("button", name="Open notifications").click()
-            report_links = page.get_by_role("link", name="下載報表")
-            old_count = report_links.count()
-            old_hrefs = [report_links.nth(i).get_attribute("href") for i in range(old_count)]
-            print("匯出前通知中心可下載連結數：", old_count)
-            page.get_by_role("button", name="Open notifications").click()
-
             answer = input("請確認機台與日期正確；輸入 YES 讓程式匯出這一台，其他輸入取消：").strip()
             if answer != "YES":
                 print("已取消，沒有匯出")
