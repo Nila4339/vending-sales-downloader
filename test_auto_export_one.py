@@ -83,16 +83,28 @@ def main():
             page.get_by_role("button", name="匯出報表").click()
             # The recorded steps did not include choosing the export report type.
             # Do not silently assume a default selection.
-            modal = page.locator(".fi-modal-window:visible").last
-            # Recorder confirms the report selector is a Choices.js control within the modal.
-            # Scope selectors to the modal, NOT the device dropdown.
-            selectors = modal.locator(".choices__inner")
+            # Wait for the export dialog to render. Previous '.fi-modal-window:visible'
+            # matched zero when the modal's actual visible container differed.
+            page.get_by_text("確定要進行嗎？").wait_for(state="visible", timeout=15000)
+            modal = page.locator(".fi-modal-window").filter(
+                has=page.get_by_text("確定要進行嗎？")
+            ).first
+            if modal.count() != 1:
+                raise RuntimeError("無法唯一辨識匯出確認視窗，停止")
+            selectors = modal.locator(".fi-modal-content .choices__inner")
+            try:
+                selectors.first.wait_for(state="visible", timeout=10000)
+            except Exception:
+                print("診斷：匯出視窗數：", page.locator(".fi-modal-window").count())
+                print("診斷：整頁 Choices 數：", page.locator(".choices__inner").count())
+                print("診斷：此視窗 Choices 數：", selectors.count())
+                raise RuntimeError("匯出視窗找不到可見的報表選單；請提供診斷數字與視窗截圖")
             if selectors.count() != 1:
-                raise RuntimeError(
-                    f"匯出視窗發現 {selectors.count()} 個報表類型選單，無法唯一定位"
-                )
-            selectors.first.click()
-            menu = modal.locator(".choices__list--dropdown:visible").first
+                raise RuntimeError(f"匯出視窗有 {selectors.count()} 個報表選單，無法唯一定位")
+            selectors.click()
+            menu = modal.locator(".choices__list--dropdown").filter(
+                has=page.locator(".choices__item--choice")
+            ).first
             menu.wait_for(state="visible", timeout=10000)
             entries = menu.locator(".choices__item--choice")
             options = [" ".join(item.inner_text().split()) for item in entries.all()]
@@ -100,12 +112,12 @@ def main():
             desired = "商品月銷售數量統計表"
             matches = [i for i, label in enumerate(options) if label == desired]
             if len(matches) != 1:
-                print("沒有找到唯一的指定報表類型，取消匯出；請回傳上方選項供調整。")
+                print("無法唯一找到指定報表，已停止。請提供上方選項。")
                 return
             entries.nth(matches[0]).click()
             print("已自動選取報表類型：", desired)
-            if input("請目視核對選項，輸入 YES 讓程式提交（其他輸入取消）：").strip() != "YES":
-                print("已取消提交。")
+            if input("目視確認選項正確後輸入 YES 提交（其他輸入取消）：").strip() != "YES":
+                print("已取消提交")
                 return
             modal.get_by_role("button", name="確定").click()
             print("已提交單台匯出，等候通知中心的新下載連結（最長 3 分鐘）...")
