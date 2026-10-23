@@ -2,7 +2,7 @@
 
 Usage: python test_date_range.py --month 2026-10
 Invoice month YYYY-MM maps to prior-month 26 00:00:00 through current-month
-25 23:59:59 (local wall-clock time).
+26 00:00:00 (local wall-clock time).
 """
 import argparse
 from datetime import datetime, timedelta
@@ -15,7 +15,7 @@ URL = "https://lvmm.justech.com.tw/admin/19/orders"
 def billing_window(month):
     dt = datetime.strptime(month, "%Y-%m")
     start = (dt - timedelta(days=1)).replace(day=26, hour=0, minute=0, second=0)
-    end = dt.replace(day=25, hour=23, minute=59, second=59)
+    end = dt.replace(day=26, hour=0, minute=0, second=0)
     return start.strftime("%d/%m/%Y %I:%M:%S %p"), end.strftime("%d/%m/%Y %I:%M:%S %p")
 
 def main():
