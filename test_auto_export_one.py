@@ -81,12 +81,15 @@ def main():
                 return
 
             page.get_by_role("button", name="匯出報表").click()
-            # Do not select an unknown export type silently.
-            print("請目視確認彈窗選的是『商品月銷售數量統計表』。")
-            if input("確認報表類型正確，輸入 YES 提交本次匯出：").strip() != "YES":
+            # The recorded steps did not include choosing the export report type.
+            # Do not silently assume a default selection.
+            print("請在 JUSTECH 匯出視窗中【手動選擇】『商品月銷售數量統計表』。")
+            print("選取後，請留在視窗中，不要自行點擊『確定』。")
+            if input("已手動選好正確報表，輸入 YES 讓程式提交（其他輸入取消）：").strip() != "YES":
                 print("已取消提交。")
                 return
-            page.get_by_role("button", name="確定").click()
+            modal = page.locator(".fi-modal-window:visible").last
+            modal.get_by_role("button", name="確定").click()
             print("已提交單台匯出，等候通知中心的新下載連結（最長 3 分鐘）...")
             page.get_by_role("button", name="Open notifications").click()
             import time
