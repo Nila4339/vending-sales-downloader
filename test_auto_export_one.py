@@ -83,12 +83,30 @@ def main():
             page.get_by_role("button", name="匯出報表").click()
             # The recorded steps did not include choosing the export report type.
             # Do not silently assume a default selection.
-            print("請在 JUSTECH 匯出視窗中【手動選擇】『商品月銷售數量統計表』。")
-            print("選取後，請留在視窗中，不要自行點擊『確定』。")
-            if input("已手動選好正確報表，輸入 YES 讓程式提交（其他輸入取消）：").strip() != "YES":
+            modal = page.locator(".fi-modal-window:visible").last
+            # Recorder confirms the report selector is a Choices.js control within the modal.
+            # Scope selectors to the modal, NOT the device dropdown.
+            selectors = modal.locator(".choices__inner")
+            if selectors.count() != 1:
+                raise RuntimeError(
+                    f"匯出視窗發現 {selectors.count()} 個報表類型選單，無法唯一定位"
+                )
+            selectors.first.click()
+            menu = modal.locator(".choices__list--dropdown:visible").first
+            menu.wait_for(state="visible", timeout=10000)
+            entries = menu.locator(".choices__item--choice")
+            options = [" ".join(item.inner_text().split()) for item in entries.all()]
+            print("匯出視窗的報表類型選項：", options)
+            desired = "商品月銷售數量統計表"
+            matches = [i for i, label in enumerate(options) if label == desired]
+            if len(matches) != 1:
+                print("沒有找到唯一的指定報表類型，取消匯出；請回傳上方選項供調整。")
+                return
+            entries.nth(matches[0]).click()
+            print("已自動選取報表類型：", desired)
+            if input("請目視核對選項，輸入 YES 讓程式提交（其他輸入取消）：").strip() != "YES":
                 print("已取消提交。")
                 return
-            modal = page.locator(".fi-modal-window:visible").last
             modal.get_by_role("button", name="確定").click()
             print("已提交單台匯出，等候通知中心的新下載連結（最長 3 分鐘）...")
             page.get_by_role("button", name="Open notifications").click()
