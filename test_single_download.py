@@ -124,7 +124,13 @@ def main():
                 target_dir.mkdir(parents=True, exist_ok=True)
                 target = target_dir / f"{filename_safe(args.month)}_{filename_safe(name)}{extension}"
                 if target.exists():
-                    raise RuntimeError(f"檔案已存在，為避免覆蓋請先檢查：{target}")
+                    stem = target.stem
+                    suffix = target.suffix
+                    counter = 2
+                    while (target_dir / f"{stem}_第{counter}次{suffix}").exists():
+                        counter += 1
+                    target = target_dir / f"{stem}_第{counter}次{suffix}"
+                    print("原檔案已存在，為避免覆蓋，改存為：", target.name)
                 target.write_bytes(temp.read_bytes())
             print("下載完成：",target)
             print("注意：此為人工確認的單台測試，通知中心任務尚未自動關聯；請核對內容。")
