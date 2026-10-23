@@ -193,6 +193,8 @@ def main():
             modal.get_by_role("button", name="確定").click(timeout=10000)
             print("本次提交起始時間（台灣）：", submitted_at.strftime("%Y-%m-%d %H:%M:%S"))
             print("已提交單台匯出，等候通知中心的新下載連結（最長 3 分鐘）...")
+            page.wait_for_timeout(5000)
+            print("匯出後已等待 5 秒，開始第一次通知檢查。")
             page.get_by_role("button", name="Open notifications").click()
             # v0.5: the tested notification card is two ancestors above its
             # download link; this card contains the timestamped report name.
