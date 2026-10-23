@@ -79,22 +79,47 @@ def main():
                 download = download_info.value
             except PlaywrightTimeout:
                 raise RuntimeError("5 分鐘內未在原訂單分頁偵測到下載，可能需適配通知中心或新分頁")
-            extension = Path(download.suggested_filename).suffix.lower()
-            if extension not in (".xlsx",".xls",".csv"):
-                raise RuntimeError(f"檔案類型不符合預期：{extension}")
-            target_dir = ROOT / "downloads" / args.month
-            target_dir.mkdir(parents=True,exist_ok=True)
-            target = target_dir / f"{filename_safe(args.month)}_{filename_safe(name)}{extension}"
-            if target.exists():
-                raise RuntimeError(f"目標已存在，為避免覆蓋請先檢查：{target}")
-            download.save_as(target)
-            if target.stat().st_size == 0:
-                target.unlink()
-                raise RuntimeError("下載檔案為空")
-            if extension == ".xlsx":
-                from openpyxl import load_workbook
-                book = load_workbook(target,read_only=True)
-                book.close()
+            # JUSTECH sometimes returns a UUID filename without any extension.
+            # Inspect actual bytes before deciding the extension.
+            import tempfile
+            import zipfile
+            import csv
+            with tempfile.TemporaryDirectory() as tmpdir:
+                temp = Path(tmpdir) / "downloaded_report"
+                download.save_as(temp)
+                if temp.stat().st_size == 0:
+                    raise RuntimeError("下載內容為空")
+                header = temp.open("rb").read(8)
+                if zipfile.is_zipfile(temp):
+                    from openpyxl import load_workbook
+                    try:
+                        book = load_workbook(temp, read_only=True)
+                        book.close()
+                    except Exception as exc:
+                        raise RuntimeError("下載檔是 ZIP，但無法辨識成 Excel xlsx") from exc
+                    extension = ".xlsx"
+                elif header.startswith(bytes.fromhex("D0CF11E0A1B11AE1")):
+                    extension = ".xls"
+                else:
+                    try:
+                        sample = temp.read_bytes()[:4096].decode("utf-8-sig")
+                        if not sample.strip() or sample.lstrip().lower().startswith(("<html", "<!doctype")):
+                            raise ValueError("不是 CSV 內容")
+                        rows = list(csv.reader(sample.splitlines()))
+                        if len(rows) == 0 or max(map(len, rows)) < 2:
+                            raise ValueError("未辨識出 CSV 欄位")
+                        extension = ".csv"
+                    except Exception as exc:
+                        raise RuntimeError(
+                            f"檔案格式無法辨識（原始檔名 {download.suggested_filename}），"
+                            "先保留人工檢查，不套用 Excel 副檔名"
+                        ) from exc
+                target_dir = ROOT / "downloads" / args.month
+                target_dir.mkdir(parents=True, exist_ok=True)
+                target = target_dir / f"{filename_safe(args.month)}_{filename_safe(name)}{extension}"
+                if target.exists():
+                    raise RuntimeError(f"檔案已存在，為避免覆蓋請先檢查：{target}")
+                target.write_bytes(temp.read_bytes())
             print("下載完成：",target)
             print("注意：此為人工確認的單台測試，通知中心任務尚未自動關聯；請核對內容。")
         finally:
