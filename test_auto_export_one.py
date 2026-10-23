@@ -56,7 +56,12 @@ def main():
             links = notification_page.get_by_role("link", name="下載報表")
             old_count = links.count()
             old_hrefs = [links.nth(i).get_attribute("href") for i in range(old_count)]
-            print("匯出前通知中心可下載連結數：", old_count)
+            print("初步偵測通知下載連結：", old_count, "（可能不完整，不能當作沒有舊報表）")
+            if old_count == 0:
+                raise RuntimeError(
+                    "通知中心舊連結讀取結果為 0，但尚未證實為空。"
+                    "為防止錯配報表，已停止匯出。請先執行 inspect_notifications.py。"
+                )
             # Close only new pages opened by inspecting notifications.
             for popup in [p for p in context.pages if p not in known_pages]:
                 popup.close()
