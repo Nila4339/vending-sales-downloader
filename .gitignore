@@ -5,3 +5,6 @@ __pycache__/
 *.pyc
 .env
 .venv/
+
+device_names.json
+recorded_steps.py
