@@ -89,12 +89,18 @@ def main():
                 download.save_as(temp)
                 if temp.stat().st_size == 0:
                     raise RuntimeError("下載內容為空")
-                header = temp.open("rb").read(8)
+                with temp.open("rb") as file_handle:
+                    header = file_handle.read(8)
                 if zipfile.is_zipfile(temp):
                     from openpyxl import load_workbook
                     try:
-                        book = load_workbook(temp.open("rb"), read_only=True)
-                        book.close()
+                        with temp.open("rb") as file_handle:
+                            book = load_workbook(file_handle, read_only=True)
+                            try:
+                                if not book.sheetnames:
+                                    raise ValueError("Excel 沒有工作表")
+                            finally:
+                                book.close()
                     except Exception as exc:
                         raise RuntimeError("下載檔是 ZIP，但無法辨識成 Excel xlsx") from exc
                     extension = ".xlsx"
