@@ -4,7 +4,7 @@
   "browser_profile_dir": "browser_profile",
   "billing_month": "2026-10",
   "start_datetime": "2026-09-26 00:00:00",
-  "end_datetime": "2026-10-25 23:59:59",
+  "end_datetime": "2026-10-26 00:00:00",
   "manual_login": true,
   "headless": false,
   "timeout_seconds": 90,
