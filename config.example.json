@@ -1,0 +1,28 @@
+{
+  "site_url": "https://請填寫登入後訂單頁面的網址",
+  "download_dir": "downloads",
+  "browser_profile_dir": "browser_profile",
+  "billing_month": "2026-10",
+  "start_datetime": "2026-09-26 00:00:00",
+  "end_datetime": "2026-10-25 23:59:59",
+  "manual_login": true,
+  "headless": false,
+  "timeout_seconds": 90,
+  "selectors": {
+    "machine_dropdown": "",
+    "machine_search": "",
+    "machine_option_template": "",
+    "machine_confirm": "",
+    "start_input": "",
+    "end_input": "",
+    "date_confirm": "",
+    "search_button": "",
+    "export_button": "",
+    "report_dropdown": "",
+    "report_option": "",
+    "export_confirm": "",
+    "notification_button": "",
+    "notification_download_link": ""
+  },
+  "report_name": "商品月銷售數量統計表"
+}
