@@ -19,6 +19,7 @@ def filename_safe(s):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--month", default="2026-10", help="對帳年月 YYYY-MM")
+    parser.add_argument("--device-index", type=int, help="1-based index in device_names.json; skips interactive device selection")
     args = parser.parse_args()
     names_path = ROOT / "device_names.json"
     if not names_path.exists():
@@ -26,7 +27,7 @@ def main():
     names = json.loads(names_path.read_text(encoding="utf-8"))
     for idx, name in enumerate(names, 1):
         print(f"{idx:>3}. {name}")
-    choice = input("請輸入要測試的設備序號：").strip()
+    choice = str(args.device_index) if args.device_index is not None else input("請輸入要測試的設備序號：").strip()
     if not choice.isdigit() or not (1 <= int(choice) <= len(names)):
         raise SystemExit("設備序號不正確")
     name = names[int(choice)-1]
@@ -72,8 +73,7 @@ def main():
             print("已套用日期：", actual)
             answer = input("請確認機台與日期正確；輸入 YES 讓程式匯出這一台，其他輸入取消：").strip()
             if answer != "YES":
-                print("已取消，沒有匯出")
-                return
+                raise SystemExit("已取消，沒有匯出")
 
             page.get_by_role("button", name="匯出報表").click()
             # The recorded steps did not include choosing the export report type.
@@ -124,8 +124,7 @@ def main():
                 raise RuntimeError(f"報表選擇結果不符：{chosen!r}，停止送出")
             print("已確認選單收合，且選定報表正確。")
             if input("目視確認選項正確後輸入 YES 提交（其他輸入取消）：").strip() != "YES":
-                print("已取消提交")
-                return
+                raise SystemExit("已取消提交")
             modal.get_by_role("button", name="確定").click(timeout=10000)
             print("已提交單台匯出，等候通知中心的新下載連結（最長 3 分鐘）...")
             page.get_by_role("button", name="Open notifications").click()
@@ -146,8 +145,7 @@ def main():
             print("請確認該項確為本次剛產生的『商品月銷售數量統計表』，")
             print("並留意有無其他人同時匯出；不確定時請取消。")
             if input("確認最上方下載連結屬於本次匯出，輸入 YES：").strip() != "YES":
-                print("已取消，沒有下載可能錯配的報表。")
-                return
+                raise SystemExit("已取消，沒有下載可能錯配的報表。")
             selected_link = top_link
             print("已確認本次下載通知，準備擷取下載事件...")
             # Recorder shows a popup and a download; popup is optional in runtime.
