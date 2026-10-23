@@ -151,7 +151,13 @@ def main():
                     selected_link = fresh[0][0]
                     break
                 if len(fresh) > 1:
-                    raise RuntimeError("通知中心同時出現多個新報表，無法確認機台，停止下載")
+                    print("通知中心有多個未辨識連結，為避免下載錯誤檔案已停止。")
+                    for index, (loc, href) in enumerate(fresh, 1):
+                        parent = loc.locator("xpath=..")
+                        details = " ".join(parent.inner_text(timeout=3000).split())[:240]
+                        # Do not print auth tokens / signed URLs from href.
+                        print(f"候選 {index}: 文字={details!r}; 連結是否存在={bool(href)}")
+                    raise RuntimeError("無法唯一關聯本次匯出任務；未下載任何候選檔案")
                 if count == old_count + 1:
                     selected_link = links.first
                     break
