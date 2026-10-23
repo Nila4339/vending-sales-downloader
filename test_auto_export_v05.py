@@ -135,11 +135,14 @@ def main():
             # v0.5: the tested notification card is two ancestors above its
             # download link; this card contains the timestamped report name.
             import time
-            report_pattern = re.compile(r"商品月銷售數量統計表_(\\d{8})_(\\d{6})\\.xlsx")
+            report_pattern = re.compile(r"商品月銷售數量統計表_(\d{8})_(\d{6})\.xlsx")
             deadline = time.monotonic() + 180
             selected_link = None
             selected_filename = None
+            last_report = None
+            attempts = 0
             while time.monotonic() < deadline:
+                attempts += 1
                 links = page.get_by_role("link", name="下載報表")
                 candidates = []
                 upper = datetime.now(ZoneInfo("Asia/Taipei")) + timedelta(seconds=3)
@@ -155,6 +158,8 @@ def main():
                     ).replace(tzinfo=ZoneInfo("Asia/Taipei"))
                     if lower <= stamp <= upper and "匯出成功" in card_text:
                         candidates.append((link, match.group(0), stamp))
+                if attempts % 5 == 1:
+                    print(f"通知檢查第 {attempts} 次：可見下載連結 {links.count()} 筆，符合本次時間 {len(candidates)} 筆", flush=True)
                 if len(candidates) > 1:
                     print("時間範圍內的候選通知：",
                           [(filename, dt.strftime("%H:%M:%S")) for _,filename,dt in candidates])
