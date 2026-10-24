@@ -42,3 +42,7 @@
 ## 本機檔案不可納入 Git
 
 `device_names.json`、`enabled_devices.json`、`billing_periods.json`、`browser_profile/`、`downloads/`、`config.json`、`.venv/` 應持續忽略。不要提交登入資料、機台敏感資訊或銷售報表。
+
+## 2026-10-24 封存結果
+
+已在 `develop` 分支以單一 Git commit 將 48 個舊版／實驗檔移至 `archive/legacy/`，不刪除檔案內容。保留 `app.py`、`batch_download.py`、`download_core.py`、`notifications.py`、`date_helpers.py`、登入與機台工具，並保留 v1.0.2 回退組（`downloader_gui_v102.py`、`batch_download_v101.py`、`download_core_v101.py`、`test_auto_export_v063.py`、`test_date_range.py`）。未修改 `main`。尚待使用者本機確認封存後正式入口仍能正常運行。
