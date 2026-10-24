@@ -38,3 +38,7 @@ Windows Python + Playwright GUI。已實測穩定版為 v1.0.2；模組化重構
 `device_names.json`、`enabled_devices.json`、`billing_periods.json`、`browser_profile/`、`downloads/`、`.venv/` 不上傳 GitHub。通知僅以時間戳比對，避免其他使用者同時匯出相同報表。不要同時開登入視窗與下載程序。
 
 清理詳見 [CLEANUP_AUDIT.md](CLEANUP_AUDIT.md)。
+
+## 歷史版本
+
+48 個早期測試與舊版程式已移至 [`archive/legacy/`](archive/legacy/)。v1.0.2 穩定回退組仍保留在根目錄；日常使用只需執行 `app.py`。
