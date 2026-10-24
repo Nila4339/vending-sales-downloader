@@ -13,8 +13,7 @@ from pathlib import Path
 from tkinter import messagebox, ttk
 
 ROOT = Path(__file__).resolve().parent
-RUNNER = ROOT / "batch_download_gui_runner.py"
-RUNNER_V07 = ROOT / "batch_download_v101.py"
+RUNNER_SHARED = ROOT / "batch_download_v101.py"
 NAMES = ROOT / "device_names.json"
 LOGIN_SCRIPT = ROOT / "open_login_v081.py"
 ENABLED_FILE = ROOT / "enabled_devices.json"
@@ -60,7 +59,7 @@ class DownloaderApp:
         outer = ttk.Frame(self.root, padding=16)
         outer.pack(fill="both", expand=True)
         ttk.Label(outer, text="JUSTECH 銷售報表下載器", font=("Microsoft JhengHei UI", 17, "bold")).pack(anchor="w")
-        ttk.Label(outer, text="v0.7 共用瀏覽器／v0.6.3 備援；從本月紀錄顯示每台狀態。", foreground="#555").pack(anchor="w", pady=(4, 14))
+        ttk.Label(outer, text="共用瀏覽器連續下載；支援月結、自訂日期、臨時匯出。", foreground="#555").pack(anchor="w", pady=(4, 14))
         form = ttk.Frame(outer)
         form.pack(fill="x")
         ttk.Label(form, text="對帳年月 (YYYY-MM)").grid(row=0, column=0, sticky="w")
@@ -446,7 +445,7 @@ class DownloaderApp:
             return
         try:
             self.stop_marker.unlink(missing_ok=True)
-            active_runner = RUNNER_V07
+            active_runner = RUNNER_SHARED
             if not active_runner.exists():
                 messagebox.showerror("缺少程式", f"找不到 {active_runner.name}")
                 return
