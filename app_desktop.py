@@ -15,7 +15,7 @@ from tkinter import messagebox, ttk
 ROOT = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 RUNNER_SHARED = ROOT / "batch_download.py"
 NAMES = ROOT / "device_names.json"
-LOGIN_SCRIPT = ROOT / "open_login_v081.py"
+LOGIN_SCRIPT = ROOT / "open_login_desktop.py"
 ENABLED_FILE = ROOT / "enabled_devices.json"
 PERIODS_FILE = ROOT / "billing_periods.json"
 from date_helpers import desired_range
@@ -537,11 +537,13 @@ class DownloaderApp:
             messagebox.showerror("缺少登入程式", f"找不到 {LOGIN_SCRIPT.name}")
             return
         try:
-            self.login_proc = subprocess.Popen(
-                ([sys.executable, "--login"] if getattr(sys, "frozen", False) else [sys.executable, "-u", str(LOGIN_SCRIPT)]),
-                cwd=str(ROOT), stdin=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-            )
+            self.login_log_path = ROOT / "login_diagnostic.log"
+            with self.login_log_path.open("w", encoding="utf-8") as logfile:
+                self.login_proc = subprocess.Popen(
+                    ([sys.executable, "--login"] if getattr(sys, "frozen", False) else [sys.executable, "-u", str(LOGIN_SCRIPT)]),
+                    cwd=str(ROOT), stdin=subprocess.DEVNULL,
+                    stdout=logfile, stderr=subprocess.STDOUT
+                )
         except OSError as exc:
             self.login_proc = None
             messagebox.showerror("無法開啟登入", str(exc))
@@ -567,7 +569,13 @@ class DownloaderApp:
             self._append("登入視窗已關閉；可開始下載。")
         else:
             self.status.set("登入視窗異常結束")
-            self._append(f"登入視窗異常結束（代碼 {code}）。請檢查帳號登入狀態與瀏覽器環境。")
+            detail = ""
+            try:
+                detail = self.login_log_path.read_text(encoding="utf-8", errors="replace")[-1800:]
+            except (OSError, AttributeError):
+                pass
+            self._append(f"登入視窗異常結束（代碼 {code}）：{detail}")
+            messagebox.showerror("登入啟動失敗", f"錯誤代碼：{code}\n\n{detail[-1200:] or '請查看 login_diagnostic.log'}")
 
     def request_stop(self):
         if self.proc is None:
