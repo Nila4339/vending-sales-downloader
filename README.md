@@ -42,3 +42,26 @@ Windows Python + Playwright GUI。已實測穩定版為 v1.0.2；模組化重構
 ## 歷史版本
 
 48 個早期測試與舊版程式已移至 [`archive/legacy/`](archive/legacy/)。v1.0.2 穩定回退組仍保留在根目錄；日常使用只需執行 `app.py`。
+
+
+## Windows EXE 測試打包（實驗版）
+
+從 GitHub `develop` 下載整包 ZIP 到**獨立的新資料夾**（不要覆蓋原本已正常的 Python 工作資料夾），在 Windows 雙擊 `build_windows.bat`。需事先安裝 Python 及網路下載依賴。
+
+批次檔會安裝 PyInstaller、`requirements.txt`、Playwright Chromium 並執行 `--onedir --console` 打包，產生：
+
+```text
+dist/ JUSTECH-Downloader / JUSTECH-Downloader.exe
+```
+
+實際資料夾路徑沒有上列空格：`dist\JUSTECH-Downloader\JUSTECH-Downloader.exe`。
+
+- 先將舊專案的 `device_names.json` 複製到 EXE **同層資料夾**。
+- 可複製 `enabled_devices.json`、`billing_periods.json`，保留機台及日期偏好。
+- 若要直接沿用登入狀態，必須在所有瀏覽器關閉後複製 `browser_profile/`；不複製也可以透過 EXE 重新登入。
+- 如需沿用續跑結果，複製舊資料夾 `downloads/` 到 EXE 同層目錄；**不複製就不會知道過去成功的機台**。
+- 此 EXE 為 `--onedir`，不要只移動 EXE 而留下旁邊的 `_internal/`，需要整個資料夾一起移動。
+- 本版為驗證用 `--console`，會出現命令列視窗；驗收完成後才改成無主控台視窗的發行版。
+- 不要同時執行原 Python GUI 與 EXE，尤其不要共用同一 `browser_profile/`。
+
+**重要：** 這裡提供的是 Windows 本機打包腳本，而非已編譯好的 EXE。尚未在 Windows 完成 PyInstaller 打包／實際執行驗證。先確認登入、單台匯出、臨時匯出、續跑與結果總表，再評估發行。
