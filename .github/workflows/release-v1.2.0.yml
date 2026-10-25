@@ -1,0 +1,60 @@
+name: Release JUSTECH Downloader v1.2.0
+on:
+  push:
+    branches:
+      - release/v1.2.0
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout clean release sources
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies and bundled Chromium
+        shell: pwsh
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: '0'
+        run: |
+          python -m pip install --upgrade pip pyinstaller
+          python -m pip install -r requirements.txt
+          python -m playwright install chromium
+
+      - name: Package GUI and Chromium
+        shell: pwsh
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: '0'
+        run: |
+          python -m PyInstaller --noconfirm --clean --onedir --windowed --name JUSTECH-Downloader-v1.2.0 --collect-all playwright --collect-all openpyxl --collect-all tzdata desktop_entry_v120.py
+          $browser = "dist/JUSTECH-Downloader-v1.2.0/_internal/playwright/driver/package/.local-browsers"
+          if (!(Test-Path $browser)) { throw "Chromium was not bundled: $browser" }
+          $chrome = Get-ChildItem -Path $browser -Filter chrome.exe -Recurse -File | Select-Object -First 1
+          if (-not $chrome) { throw "Bundled chrome.exe missing" }
+          if (!(Test-Path "dist/JUSTECH-Downloader-v1.2.0/JUSTECH-Downloader-v1.2.0.exe")) { throw "EXE missing" }
+
+      - name: Zip clean distribution
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "dist/JUSTECH-Downloader-v1.2.0" -DestinationPath "JUSTECH-Downloader-v1.2.0-Windows.zip" -CompressionLevel Optimal
+
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "v1.2.0"
+          gh release view $tag 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag "JUSTECH-Downloader-v1.2.0-Windows.zip" --clobber
+          } else {
+            gh release create $tag "JUSTECH-Downloader-v1.2.0-Windows.zip" --target "${{ github.sha }}" --title "JUSTECH Downloader v1.2.0" --notes-file "RELEASE_NOTES_v1.2.0.md"
+          }
