@@ -39,9 +39,9 @@ if __name__ == "__main__":
             # Windowed PyInstaller child processes lack real stdout/stderr.
             # Forward them to GUI-managed logs or inherited pipes.
             if sys.stdout is None:
-                sys.stdout = open(os.devnull, "w", encoding="utf-8")
+                sys.stdout = os.fdopen(1, "w", encoding="utf-8", buffering=1, closefd=False)
             if sys.stderr is None:
-                sys.stderr = sys.stdout
+                sys.stderr = os.fdopen(2, "w", encoding="utf-8", buffering=1, closefd=False)
         main()
     except BaseException:
         log = Path(sys.executable).resolve().parent / "desktop_error.log" if getattr(sys,"frozen",False) else Path(__file__).resolve().parent / "desktop_error.log"
