@@ -26,6 +26,7 @@ def discover():
             menu.wait_for(state="visible", timeout=15000)
             names = set()
             stagnant = 0
+            previous_count = -1
             for _ in range(150):
                 items = menu.locator(".choices__item--choice")
                 for item in items.all():
@@ -34,12 +35,12 @@ def discover():
                     name = " ".join(item.inner_text().split())
                     if name and name not in ("全部", "選擇", "沒有結果", "No results found"):
                         names.add(name)
-                before = len(names)
                 menu.evaluate("""el => { const box=el.querySelector('.choices__list') || el; box.scrollTop=box.scrollHeight; }""")
                 page.wait_for_timeout(400)
                 # Do not assume a full list if the component virtualizes options.
                 current = len(names)
-                stagnant = stagnant + 1 if current == before else 0
+                stagnant = stagnant + 1 if current == previous_count else 0
+                previous_count = current
                 if stagnant >= 5:
                     break
             if not names:
