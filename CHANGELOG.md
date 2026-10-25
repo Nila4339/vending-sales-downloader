@@ -25,3 +25,9 @@
 
 ## v0.1-dev（2026-10-22）
 - 建立 `develop` 分支與初始原型。
+
+
+## v1.2.0-rc（待 Windows 實測）
+- 新增 `desktop_entry_v120.py`、`build_windows_v120.bat`。
+- PyInstaller `--windowed`、獨立 `dist-v120` 輸出，保留既有測試版。
+- 支援無主控台環境下登入／下載子程序輸出重新導向與錯誤檔。
