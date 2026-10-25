@@ -1,0 +1,14 @@
+config.json
+browser_profile/
+downloads/
+__pycache__/
+*.pyc
+.env
+.venv/
+
+device_names.json
+recorded_steps.py
+.gui_stop_requested
+enabled_devices.json
+billing_periods.json
+.device_sync_preview.json
