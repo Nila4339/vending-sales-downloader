@@ -312,11 +312,11 @@ class DownloaderApp:
             old = list(self.names)
             added = [n for n in found if n not in old]
             missing = [n for n in old if n not in found]
-            preview = (f"JUSTECH 讀取：{len(found)} 台\\n原本：{len(old)} 台\\n"
-                       f"新增：{len(added)} 台\\n本次未出現：{len(missing)} 台（會保留）\\n\\n"
-                       + ("新增清單：\\n" + "\\n".join(added[:12]) if added else "沒有新增機台")
-                       + ("\\n…" if len(added)>12 else "")
-                       + "\\n\\n確認將新增機台附加至本機清單？既有順序與停用設定不變。")
+            preview = (f"JUSTECH 讀取：{len(found)} 台\n原本：{len(old)} 台\n"
+                       f"新增：{len(added)} 台\n本次未出現：{len(missing)} 台（會保留）\n\n"
+                       + ("新增清單：\n" + "\n".join(added[:12]) if added else "沒有新增機台")
+                       + ("\n…" if len(added)>12 else "")
+                       + "\n\n確認將新增機台附加至本機清單？既有順序與停用設定不變。")
             if not added:
                 self.status.set(f"同步完成：{len(found)} 台，沒有新增機台")
                 messagebox.showinfo("機台同步結果", preview.replace("確認將新增機台附加至本機清單？既有順序與停用設定不變。",""))
