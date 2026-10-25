@@ -65,3 +65,16 @@ dist/ JUSTECH-Downloader / JUSTECH-Downloader.exe
 - 不要同時執行原 Python GUI 與 EXE，尤其不要共用同一 `browser_profile/`。
 
 **重要：** 這裡提供的是 Windows 本機打包腳本，而非已編譯好的 EXE。尚未在 Windows 完成 PyInstaller 打包／實際執行驗證。先確認登入、單台匯出、臨時匯出、續跑與結果總表，再評估發行。
+
+
+## v1.2.0 Windows 無命令列視窗候選版
+
+從 develop 下載 ZIP，在新的資料夾執行 `build_windows_v120.bat`（不是舊的 `build_windows.bat`）。打包後程式位於 `dist-v120/ JUSTECH-Downloader-v120/ JUSTECH-Downloader-v120.exe`（這裡用空格隔開路徑層級，實際名稱沒有額外空格）。
+
+- PyInstaller 使用 `--windowed --onedir`，移除主視窗後方的命令列。
+- 重要：不要覆蓋先前已測試成功的 `dist-exe-test`。
+- 將 `device_names.json` 複製至新版 EXE 同層。要沿用停用設定、日期與續跑，請一併複製 `enabled_devices.json`、`billing_periods.json` 與 `downloads/`。
+- 瀏覽器登入可在新版重新登入；如需帶入 `browser_profile/`，請先完全關閉舊版 EXE 與 Chromium。
+- 測試登入、單台下載、進度、續跑、臨時區間、停用管理與 CSV。
+- 錯誤診斷：`login_diagnostic.log`、`desktop_error.log`，下載輸出仍於 GUI 顯示。
+- **此版本尚未在 Windows 測試；通過驗收後才可當作發行版。**
