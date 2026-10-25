@@ -31,3 +31,11 @@
 - 新增 `desktop_entry_v120.py`、`build_windows_v120.bat`。
 - PyInstaller `--windowed`、獨立 `dist-v120` 輸出，保留既有測試版。
 - 支援無主控台環境下登入／下載子程序輸出重新導向與錯誤檔。
+
+
+## v1.3.0-dev（2026-10-25，尚待 Windows 實測）
+- 圖形介面新增「從 JUSTECH 同步機台」，登入後可直接建立本機 device_names.json。
+- 新增資料先顯示差異清單，取得使用者確認才更新；保留既有機台順序及停用設定。
+- JUSTECH 查不到的舊機台預設保留，不直接刪除，降低既有 CSV 紀錄索引錯位風險。
+- 新增 `app_desktop_v130.py`、`device_sync.py`、`desktop_entry_v130.py`、`build_windows_v130.bat`。
+- v1.2.0 正式發布分支不修改。
