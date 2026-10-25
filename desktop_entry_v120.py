@@ -5,6 +5,20 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 
+def _stream_from_handle(kind):
+    """Recover redirected Windows STD_OUTPUT/STD_ERROR in --windowed EXE."""
+    try:
+        import ctypes
+        import msvcrt
+        handle = ctypes.windll.kernel32.GetStdHandle(kind)
+        if handle in (0, -1) or handle is None:
+            raise OSError("Missing redirected standard handle")
+        flags = os.O_WRONLY | getattr(os, "O_BINARY", 0)
+        fd = msvcrt.open_osfhandle(handle, flags)
+        return os.fdopen(fd, "w", encoding="utf-8", errors="replace", buffering=1)
+    except Exception:
+        return open(os.devnull, "w", encoding="utf-8")
+
 def main():
     import notifications
     import date_helpers
@@ -39,9 +53,9 @@ if __name__ == "__main__":
             # Windowed PyInstaller child processes lack real stdout/stderr.
             # Forward them to GUI-managed logs or inherited pipes.
             if sys.stdout is None:
-                sys.stdout = os.fdopen(1, "w", encoding="utf-8", buffering=1, closefd=False)
+                sys.stdout = _stream_from_handle(-11)
             if sys.stderr is None:
-                sys.stderr = os.fdopen(2, "w", encoding="utf-8", buffering=1, closefd=False)
+                sys.stderr = _stream_from_handle(-12)
         main()
     except BaseException:
         log = Path(sys.executable).resolve().parent / "desktop_error.log" if getattr(sys,"frozen",False) else Path(__file__).resolve().parent / "desktop_error.log"
