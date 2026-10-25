@@ -14,14 +14,14 @@ if errorlevel 1 goto failed
 set "PLAYWRIGHT_BROWSERS_PATH=0"
 py -m playwright install chromium
 if errorlevel 1 goto failed
-py -m PyInstaller --noconfirm --clean --onedir --console --name JUSTECH-Downloader --collect-all playwright --collect-all openpyxl --collect-all tzdata desktop_entry.py
+py -m PyInstaller --noconfirm --clean --onedir --console --name JUSTECH-Downloader-Test --distpath dist-exe-test --workpath build-exe-test --collect-all playwright --collect-all openpyxl --collect-all tzdata desktop_entry.py
 if errorlevel 1 goto failed
 echo.
-if not exist "dist\JUSTECH-Downloader\_internal\playwright\driver\package\.local-browsers" (
+if not exist "dist-exe-test\JUSTECH-Downloader-Test\_internal\playwright\driver\package\.local-browsers" (
   echo ERROR: bundled Chromium not found; build is incomplete.
   goto failed
 )
-echo Build complete: dist\JUSTECH-Downloader\JUSTECH-Downloader.exe
+echo Build complete: dist-exe-test\JUSTECH-Downloader-Test\JUSTECH-Downloader-Test.exe
 echo IMPORTANT: Copy your existing device_names.json to the EXE folder.
 echo Optional: copy enabled_devices.json, billing_periods.json and browser_profile directory.
 pause
