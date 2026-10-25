@@ -46,6 +46,7 @@ jobs:
           gh release view $tag 2>$null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag "JUSTECH-Downloader-v1.3.0-Windows.zip" --clobber
+            gh release edit $tag --title "JUSTECH 銷售報表下載器 v1.3.0" --notes-file "RELEASE_NOTES_v1.3.0.md"
           } else {
-            gh release create $tag "JUSTECH-Downloader-v1.3.0-Windows.zip" --target "${{ github.sha }}" --title "JUSTECH Downloader v1.3.0" --notes-file "RELEASE_NOTES_v1.3.0.md"
+            gh release create $tag "JUSTECH-Downloader-v1.3.0-Windows.zip" --target "${{ github.sha }}" --title "JUSTECH 銷售報表下載器 v1.3.0" --notes-file "RELEASE_NOTES_v1.3.0.md"
           }
