@@ -11,3 +11,4 @@ recorded_steps.py
 .gui_stop_requested
 enabled_devices.json
 billing_periods.json
+.device_sync_preview.json
