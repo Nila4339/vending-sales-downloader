@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.1（2026-10-26，登入相容性修正）
+- 修正 Windows 無主控台 EXE 在登入子程序輸出中文時 cp1252 編碼造成的 UnicodeEncodeError。
+- 強制 UTF-8 輸出與診斷日誌；使用者已確認修正版 EXE 及登入瀏覽器可正常啟動。
+- 下載核心未改動，維持 v1.3.0 已驗收功能。
+
+
 ## v1.1.0-refactor（2026-10-24，待本機回歸測試）
 - 新建 `app.py`、`download_core.py`、`notifications.py`、`date_helpers.py`，正式批次入口 `batch_download.py`。
 - GUI 固定共用瀏覽器，正式流程移除測試檔依賴。
