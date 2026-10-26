@@ -61,6 +61,11 @@ if __name__ == "__main__":
                 sys.stdout = _stream_from_handle(-11)
             if sys.stderr is None:
                 sys.stderr = _stream_from_handle(-12)
+        # In windowed PyInstaller, stdout may exist but use cp1252; enforce UTF-8.
+        for stream_name in ("stdout", "stderr"):
+            stream = getattr(sys, stream_name)
+            if stream is not None and hasattr(stream, "reconfigure"):
+                stream.reconfigure(encoding="utf-8", errors="replace")
         main()
     except BaseException:
         log = Path(sys.executable).resolve().parent / "desktop_error.log" if getattr(sys,"frozen",False) else Path(__file__).resolve().parent / "desktop_error.log"
