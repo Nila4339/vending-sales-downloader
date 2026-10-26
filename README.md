@@ -1,6 +1,6 @@
 # JUSTECH 銷售報表下載器
 
-**Windows 桌面工具｜最新穩定版本 v1.3.0**
+**Windows 桌面工具｜最新穩定版本 v1.3.1**
 
 JUSTECH 銷售報表下載器是協助販賣機營運與對帳人員批次匯出銷售資料的桌面程式。過去需要登入 JUSTECH 後台、逐台選擇機台、設定日期並下載報表；現在可以一次指定多台機器，交由程式依序下載並整理結果。
 
@@ -8,9 +8,9 @@ JUSTECH 銷售報表下載器是協助販賣機營運與對帳人員批次匯出
 
 ## ⬇️ 下載 Windows 正式版
 
-**[下載 JUSTECH 銷售報表下載器 v1.3.0（GitHub Release）](https://github.com/Nila4339/vending-sales-downloader/releases/tag/v1.3.0)**
+**[下載 JUSTECH 銷售報表下載器 v1.3.1（GitHub Release）](https://github.com/Nila4339/vending-sales-downloader/releases/tag/v1.3.1)**
 
-在 Release 頁面的 **Assets** 下載 `JUSTECH-Downloader-v1.3.0-Windows.zip`，解壓縮後開啟 `JUSTECH-Downloader-v1.3.0.exe`。正式 ZIP 已包含 Windows 執行程式及所需元件，使用者**不需要安裝 Python**。
+在 Release 頁面的 **Assets** 下載 `JUSTECH-Downloader-v1.3.1-Windows.zip`，解壓縮後開啟 `JUSTECH-Downloader-v1.3.1.exe`。正式 ZIP 已包含 Windows 執行程式及所需元件，使用者**不需要安裝 Python**。
 
 **請保留整個解壓縮資料夾**，不要只複製 EXE；程式還需要旁邊的 `_internal/`。
 
@@ -29,7 +29,7 @@ JUSTECH 銷售報表下載器是協助販賣機營運與對帳人員批次匯出
 ## 🚀 第一次使用
 
 1. 下載上述 Windows ZIP，完整解壓縮。
-2. 開啟 `JUSTECH-Downloader-v1.3.0.exe`。
+2. 開啟 `JUSTECH-Downloader-v1.3.1.exe`。
 3. 點選 **「開啟 JUSTECH 登入」**，在開啟的瀏覽器完成登入；關閉登入瀏覽器後返回下載器。
 4. 點選 **「從 JUSTECH 同步機台」**，核對數量和名稱，確認後建立本機清單。
 5. 選擇對帳年月、日期區間與下載機台，按 **「開始下載」**。
@@ -43,7 +43,7 @@ JUSTECH 銷售報表下載器是協助販賣機營運與對帳人員批次匯出
 
 | 本機項目 | 用途 |
 | --- | --- |
-| `device_names.json` | 原有機台清單；v1.3.0 亦可從 JUSTECH 重新同步 |
+| `device_names.json` | 原有機台清單；v1.3.1 亦可從 JUSTECH 重新同步 |
 | `enabled_devices.json` | 機台啟用／停用設定 |
 | `billing_periods.json` | 已儲存的各月份對帳期間 |
 | `downloads/` | 已下載報表及續跑紀錄 |
@@ -57,11 +57,11 @@ JUSTECH 銷售報表下載器是協助販賣機營運與對帳人員批次匯出
 
 | 位置 | 用途 |
 | --- | --- |
-| [`main`](https://github.com/Nila4339/vending-sales-downloader/tree/main) | 最新已驗收的正式程式碼（目前 v1.3.0） |
+| [`main`](https://github.com/Nila4339/vending-sales-downloader/tree/main) | 最新已驗收的正式程式碼（目前 v1.3.1） |
 | [`develop`](https://github.com/Nila4339/vending-sales-downloader/tree/develop) | 新功能開發、測試與歷史版本 |
 | [Releases](https://github.com/Nila4339/vending-sales-downloader/releases) | 正式版本說明與 Windows ZIP 附件 |
 
-v1.3.0 正式版的主要程式模組：
+v1.3.1 正式版的主要程式模組：
 
 - `app_desktop_v130.py`：圖形介面。
 - `desktop_entry_v130.py`：桌面版 EXE 啟動入口。
@@ -79,4 +79,4 @@ v1.3.0 正式版的主要程式模組：
 
 ---
 
-**目前狀態：v1.3.0 已經 Windows 實測並正式發布。** 登入、同步機台、批次下載、續跑、日期區間、機台管理與結果總表已通過使用者驗收。
+**目前狀態：v1.3.1 登入編碼修正已完成 Windows 啟動及登入測試；其餘功能延用 v1.3.0 已驗收版本。** 登入、同步機台、批次下載、續跑、日期區間、機台管理與結果總表已通過使用者驗收。
