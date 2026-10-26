@@ -622,7 +622,8 @@ class DownloaderApp:
                 self.login_proc = subprocess.Popen(
                     ([sys.executable, "--login"] if getattr(sys, "frozen", False) else [sys.executable, "-u", str(LOGIN_SCRIPT)]),
                     cwd=str(ROOT), stdin=subprocess.DEVNULL,
-                    stdout=logfile, stderr=subprocess.STDOUT
+                    stdout=logfile, stderr=subprocess.STDOUT,
+                    env={**os.environ, "PYTHONIOENCODING": "utf-8:replace"}
                 )
         except OSError as exc:
             self.login_proc = None
